@@ -1,0 +1,28 @@
+{
+  "name": "orshot-chrome-extension",
+  "version": "1.0.0",
+  "description": "Chrome extension for generating tweet screenshots using Orshot API",
+  "main": "content.js",
+  "scripts": {
+    "build": "echo 'No build step required - this is a Manifest V3 extension'",
+    "lint": "echo 'Add ESLint configuration if needed'",
+    "package": "zip -r orshot-chrome-extension.zip . -x '*.git*' 'node_modules/*' 'package*.json' '*.md'"
+  },
+  "keywords": [
+    "chrome-extension",
+    "twitter",
+    "screenshot",
+    "orshot",
+    "social-media"
+  ],
+  "author": "Rishi Mohan",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/rishimohan/orshot"
+  },
+  "bugs": {
+    "url": "https://github.com/rishimohan/orshot/issues"
+  },
+  "homepage": "https://orshot.com"
+}

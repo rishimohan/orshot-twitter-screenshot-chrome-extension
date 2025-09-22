@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <style>
+    body {
+      width: 300px;
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #f7f9fa;
+    }
+    
+    .header {
+      background: #1d9bf0;
+      color: white;
+      padding: 20px;
+      text-align: center;
+    }
+    
+    .header h1 {
+      margin: 0;
+      font-size: 18px;
+      font-weight: 600;
+    }
+    
+    .content {
+      padding: 20px;
+    }
+    
+    .form-group {
+      margin-bottom: 16px;
+    }
+    
+    label {
+      display: block;
+      margin-bottom: 6px;
+      font-weight: 500;
+      color: #14171a;
+      font-size: 14px;
+    }
+    
+    input[type="password"] {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #e1e8ed;
+      border-radius: 6px;
+      font-size: 14px;
+      box-sizing: border-box;
+    }
+    
+    input[type="password"]:focus {
+      outline: none;
+      border-color: #1d9bf0;
+      box-shadow: 0 0 0 2px rgba(29, 155, 240, 0.2);
+    }
+    
+    .help-text {
+      font-size: 12px;
+      color: #657786;
+      margin-top: 4px;
+      line-height: 1.4;
+    }
+    
+    .save-btn {
+      width: 100%;
+      padding: 10px;
+      background: #1d9bf0;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      font-weight: 500;
+      cursor: pointer;
+      font-size: 14px;
+      transition: background-color 0.2s ease;
+    }
+    
+    .save-btn:hover {
+      background: #1a8cd8;
+    }
+    
+    .save-btn:disabled {
+      background: #aab8c2;
+      cursor: not-allowed;
+    }
+    
+    .status {
+      margin-top: 12px;
+      padding: 8px;
+      border-radius: 4px;
+      font-size: 12px;
+      text-align: center;
+      display: none;
+    }
+    
+    .status.success {
+      background: #d4edda;
+      color: #155724;
+      border: 1px solid #c3e6cb;
+    }
+    
+    .status.error {
+      background: #f8d7da;
+      color: #721c24;
+      border: 1px solid #f5c6cb;
+    }
+    
+    .info-section {
+      margin-top: 20px;
+      padding-top: 20px;
+      border-top: 1px solid #e1e8ed;
+    }
+    
+    .info-section h3 {
+      margin: 0 0 10px 0;
+      font-size: 14px;
+      color: #14171a;
+    }
+    
+    .info-section p {
+      margin: 0;
+      font-size: 12px;
+      color: #657786;
+      line-height: 1.4;
+    }
+    
+    .link {
+      color: #1d9bf0;
+      text-decoration: none;
+    }
+    
+    .link:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1>Orshot Settings</h1>
+  </div>
+  
+  <div class="content">
+    <form id="settingsForm">
+      <div class="form-group">
+        <label for="apiKey">API Key (Optional)</label>
+        <input type="password" id="apiKey" placeholder="Enter your Orshot API key">
+        <div class="help-text">
+          Without an API key, you'll have rate limits. Get your free API key from 
+          <a href="https://orshot.com" target="_blank" class="link">orshot.com</a>
+        </div>
+      </div>
+      
+      <button type="submit" class="save-btn" id="saveBtn">Save Settings</button>
+      
+      <div class="status" id="status"></div>
+    </form>
+    
+    <div class="info-section">
+      <h3>How to use:</h3>
+      <p>
+        Visit any tweet on Twitter/X and look for the blue "Capture" button next to like/retweet buttons. 
+        Click it to generate a beautiful screenshot!
+      </p>
+    </div>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>

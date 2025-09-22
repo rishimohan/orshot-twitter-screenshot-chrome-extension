@@ -1,0 +1,273 @@
+/* Orshot Chrome Extension Styles */
+
+/* Capture Button Styles */
+.orshot-capture-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2px;
+  margin-left: 2px;
+  border-radius: 100px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  user-select: none;
+  background: transparent;
+  width: 18px;
+  height: 18px;
+}
+
+.orshot-capture-btn:hover svg path {
+  fill: #E6EFF8;
+}
+
+.orshot-btn-content {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.orshot-btn-content.loading {
+  gap: 8px;
+}
+
+.orshot-spinner {
+  width: 14px;
+  height: 14px;
+  border: 2px solid #E6EFF8;
+  border-top: 2px solid white;
+  border-radius: 50%;
+  animation: orshot-spin 1s linear infinite;
+}
+
+@keyframes orshot-spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Modal Styles */
+.orshot-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10000;
+  animation: orshot-fade-in 0.3s ease;
+}
+
+@keyframes orshot-fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.orshot-modal-content {
+  border: 1px solid #555555;
+  backdrop-filter: blur(30px);
+  background: #4d4d4d78;
+  border-radius: 20px;
+  max-width: 1080px;
+  max-height: 90vh;
+  overflow: hidden;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+  animation: orshot-slide-up 0.3s ease;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+}
+
+@keyframes orshot-slide-up {
+  from { 
+    opacity: 0;
+    transform: translateY(50px);
+  }
+  to { 
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.orshot-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 24px 12px 24px;
+}
+
+.orshot-modal-header h3 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+  color: #fff;
+}
+
+.orshot-close-btn {
+  background: none;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  color: #657786;
+  padding: 4px;
+  border-radius: 50%;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.orshot-close-btn:hover {
+  background-color: #e1e8ed;
+  color: #14171a;
+}
+
+.orshot-modal-body {
+  padding: 10px 20px 20px 20px;
+  text-align: center;
+}
+
+.orshot-screenshot {
+  max-width: 100%;
+  max-height: 60vh;
+  margin-bottom: 20px;
+  border-radius: 20px;
+}
+
+.orshot-modal-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+}
+
+.orshot-download-btn,
+.orshot-copy-btn {
+  padding: 10px 20px;
+  border-radius: 20px;
+  border: none;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 14px;
+}
+
+.orshot-download-btn {
+  background-color: #1d9bf0;
+  color: white;
+}
+
+.orshot-download-btn:hover {
+  background-color: #1a8cd8;
+}
+
+.orshot-copy-btn {
+  background-color: #f7f9fa;
+  color: #14171a;
+  border: 1px solid #e1e8ed;
+}
+
+.orshot-copy-btn:hover {
+  background-color: #e1e8ed;
+}
+
+/* Notification Styles */
+.orshot-notification {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  padding: 12px 20px;
+  border-radius: 8px;
+  color: white;
+  font-weight: 500;
+  z-index: 10001;
+  max-width: 300px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  animation: orshot-slide-in 0.3s ease;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+}
+
+@keyframes orshot-slide-in {
+  from {
+    opacity: 0;
+    transform: translateX(100px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.orshot-notification-success {
+  background-color: #00ba7c;
+}
+
+.orshot-notification-error {
+  background-color: #e0245e;
+}
+
+.orshot-notification-info {
+  background-color: #1d9bf0;
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+  .orshot-modal-content {
+    background: #15202b;
+    color: white;
+  }
+  
+  .orshot-modal-header {
+    background: #192734;
+    border-bottom-color: #38444d;
+  }
+  
+  .orshot-modal-header h3 {
+    color: white;
+  }
+  
+  .orshot-close-btn {
+    color: #8899a6;
+  }
+  
+  .orshot-close-btn:hover {
+    background-color: #38444d;
+    color: white;
+  }
+  
+  .orshot-copy-btn {
+    background-color: #192734;
+    color: white;
+    border-color: #38444d;
+  }
+  
+  .orshot-copy-btn:hover {
+    background-color: #38444d;
+  }
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .orshot-modal-content {
+    margin: 20px;
+    max-width: calc(100vw - 40px);
+  }
+  
+  .orshot-modal-header,
+  .orshot-modal-body {
+    padding: 16px;
+  }
+  
+  .orshot-capture-btn {
+    padding: 6px 10px;
+    min-width: 70px;
+    font-size: 12px;
+  }
+  
+  .orshot-notification {
+    top: 10px;
+    right: 10px;
+    left: 10px;
+    max-width: none;
+  }
+}

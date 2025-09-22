@@ -1,0 +1,38 @@
+{
+  "manifest_version": 3,
+  "name": "Orshot - Tweet Screenshots",
+  "version": "1.0.0",
+  "description": "Generate beautiful tweet screenshots with one click",
+  "permissions": ["activeTab", "storage"],
+  "host_permissions": [
+    "https://twitter.com/*",
+    "https://x.com/*",
+    "https://orshot.com/*"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": ["https://twitter.com/*", "https://x.com/*"],
+      "js": ["content.js"],
+      "css": ["styles.css"]
+    }
+  ],
+  "web_accessible_resources": [
+    {
+      "resources": ["icons/*"],
+      "matches": ["https://twitter.com/*", "https://x.com/*"]
+    }
+  ],
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "Orshot Settings"
+  },
+  "icons": {
+    "16": "icons/icon-16.png",
+    "32": "icons/icon-32.png",
+    "48": "icons/icon-48.png",
+    "128": "icons/icon-128.png"
+  }
+}
