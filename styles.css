@@ -210,6 +210,20 @@
   background-color: #1d9bf0;
 }
 
+/* Clickable notification styles */
+.orshot-notification[style*="cursor: pointer"] {
+  transition: all 0.2s ease;
+}
+
+.orshot-notification[style*="cursor: pointer"]:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.3);
+}
+
+.orshot-notification-error[style*="cursor: pointer"]:hover {
+  background-color: #c91e4a;
+}
+
 /* Dark mode support */
 @media (prefers-color-scheme: dark) {
   .orshot-modal-content {

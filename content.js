@@ -74,6 +74,19 @@ class OrshotTweetCapture {
   }
 
   addCaptureButtonToTweet(tweetElement) {
+    // Check if we're on an individual tweet page
+    const isIndividualTweetPage = window.location.href.includes("/status/");
+
+    if (isIndividualTweetPage) {
+      // On individual tweet pages, add button next to views
+      this.addCaptureButtonToIndividualTweet(tweetElement);
+    } else {
+      // On timeline, add button to action bar
+      this.addCaptureButtonToTimeline(tweetElement);
+    }
+  }
+
+  addCaptureButtonToTimeline(tweetElement) {
     // Find the action bar (like, retweet, share buttons)
     const actionBar = tweetElement.querySelector('[role="group"]');
     if (!actionBar) return;
@@ -92,25 +105,73 @@ class OrshotTweetCapture {
     actionBar.appendChild(captureButton);
   }
 
-  createCaptureButton() {
+  addCaptureButtonToIndividualTweet(tweetElement) {
+    // Look for the views text container
+    const viewsContainer = tweetElement.querySelector(
+      '[href$="analytics"]:not([data-orshot-processed])'
+    );
+    if (!viewsContainer) return;
+
+    // Create a smaller capture button for individual tweet pages
+    const captureButton = this.createCaptureButton(true);
+
+    // Add click handler
+    captureButton.addEventListener("click", (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      this.captureTweet(tweetElement);
+    });
+
+    // Insert the button after the views container
+    viewsContainer.parentNode.insertBefore(
+      captureButton,
+      viewsContainer.nextSibling
+    );
+    viewsContainer.setAttribute("data-orshot-processed", "true");
+  }
+
+  createCaptureButton(isCompact = false) {
     const button = document.createElement("div");
-    button.className = "orshot-capture-btn";
-    button.innerHTML = `
-      <div class="orshot-btn-content" style="width: 24px; height: 24px;">
-        <svg xmlns="http://www.w3.org/2000/svg" width="20px" height="20px" viewBox="0 0 24 24" fill="none">
-        <g clip-path="url(#clip0_15_137)">
-          <rect width="24" height="24" fill="transparent"/>
-          <path d="M3 8C3 7.44772 3.44772 7 4 7H8.5L9.5 4H14.5L15.5 7H20C20.5523 7 21 7.44772 21 8V19C21 19.5523 20.5523 20 20 20H4C3.44772 20 3 19.5523 3 19V8Z" stroke="#536471" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
-          <circle cx="12" cy="13" r="3" stroke="#536471" stroke-width="1.7" stroke-linejoin="round"/>
-          </g>
-          <defs>
-          <clipPath id="clip0_15_137">
-          <rect width="24" height="24" fill="transparent"/>
-          </clipPath>
-          </defs>
-        </svg>
-      </div>
-    `;
+    button.className = isCompact
+      ? "orshot-capture-btn orshot-capture-btn-compact"
+      : "orshot-capture-btn";
+
+    if (isCompact) {
+      button.innerHTML = `
+        <div class="orshot-btn-content-compact" style="width: 18px; height: 18px; position: relative; margin-left: 20px;">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20px" height="20px" viewBox="0 0 24 24" fill="none">
+          <g clip-path="url(#clip0_15_137)">
+            <rect width="24" height="24" fill="transparent"/>
+            <path d="M3 8C3 7.44772 3.44772 7 4 7H8.5L9.5 4H14.5L15.5 7H20C20.5523 7 21 7.44772 21 8V19C21 19.5523 20.5523 20 20 20H4C3.44772 20 3 19.5523 3 19V8Z" stroke="#536471" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
+            <circle cx="12" cy="13" r="3" stroke="#536471" stroke-width="1.7" stroke-linejoin="round"/>
+            </g>
+            <defs>
+            <clipPath id="clip0_15_137">
+            <rect width="24" height="24" fill="transparent"/>
+            </clipPath>
+            </defs>
+          </svg>
+        </div>
+      `;
+    } else {
+      button.innerHTML = `
+        <div class="orshot-btn-content" style="width: 24px; height: 24px;">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20px" height="20px" viewBox="0 0 24 24" fill="none">
+          <g clip-path="url(#clip0_15_137)">
+            <rect width="24" height="24" fill="transparent"/>
+            <path d="M3 8C3 7.44772 3.44772 7 4 7H8.5L9.5 4H14.5L15.5 7H20C20.5523 7 21 7.44772 21 8V19C21 19.5523 20.5523 20 20 20H4C3.44772 20 3 19.5523 3 19V8Z" stroke="#536471" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
+            <circle cx="12" cy="13" r="3" stroke="#536471" stroke-width="1.7" stroke-linejoin="round"/>
+            </g>
+            <defs>
+            <clipPath id="clip0_15_137">
+            <rect width="24" height="24" fill="transparent"/>
+            </clipPath>
+            </defs>
+          </svg>
+        </div>
+      `;
+    }
+
     button.title = "Create tweet screenshot with Orshot";
     return button;
   }
@@ -127,11 +188,21 @@ class OrshotTweetCapture {
     // Show loading state
     const button = tweetElement.querySelector(".orshot-capture-btn");
     const originalContent = button.innerHTML;
-    button.innerHTML = `
-      <div class="orshot-btn-content loading">
-        <div class="orshot-spinner"></div>
-      </div>
-    `;
+    const isCompact = button.classList.contains("orshot-capture-btn-compact");
+
+    if (isCompact) {
+      button.innerHTML = `
+        <div class="orshot-btn-content-compact loading">
+          <div class="orshot-spinner" style="width: 12px; height: 12px;"></div>
+        </div>
+      `;
+    } else {
+      button.innerHTML = `
+        <div class="orshot-btn-content loading">
+          <div class="orshot-spinner"></div>
+        </div>
+      `;
+    }
     button.style.pointerEvents = "none";
 
     try {
@@ -141,8 +212,11 @@ class OrshotTweetCapture {
     } catch (error) {
       console.error("Failed to capture tweet:", error);
       this.showNotification(
-        error.message || "Failed to generate screenshot",
-        "error"
+        `${
+          error.message || "Failed to generate screenshot"
+        } - Get unlimited access`,
+        "error",
+        "https://orshot.com/signup"
       );
     } finally {
       // Restore button
@@ -327,7 +401,7 @@ class OrshotTweetCapture {
     }
   }
 
-  showNotification(message, type = "info") {
+  showNotification(message, type = "info", link = null) {
     // Remove existing notifications
     const existing = document.querySelector(".orshot-notification");
     if (existing) {
@@ -336,16 +410,29 @@ class OrshotTweetCapture {
 
     const notification = document.createElement("div");
     notification.className = `orshot-notification orshot-notification-${type}`;
-    notification.textContent = message;
+
+    if (link) {
+      notification.style.cursor = "pointer";
+      notification.innerHTML = `${message} <span style="text-decoration: underline;">→</span>`;
+      notification.addEventListener("click", () => {
+        window.open(link, "_blank");
+        notification.remove();
+      });
+    } else {
+      notification.textContent = message;
+    }
 
     document.body.appendChild(notification);
 
-    // Auto remove after 3 seconds
-    setTimeout(() => {
-      if (notification.parentNode) {
-        notification.remove();
-      }
-    }, 3000);
+    // Auto remove after 5 seconds for links, 3 seconds for others
+    setTimeout(
+      () => {
+        if (notification.parentNode) {
+          notification.remove();
+        }
+      },
+      link ? 5000 : 3000
+    );
   }
 }
 

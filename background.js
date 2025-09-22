@@ -25,6 +25,7 @@ async function handleScreenshotRequest(request, sendResponse) {
           templateSlug: "tweet-image",
           modifications: {
             tweetUrl: request.tweetUrl,
+            showRepliedToTweet: true,
           },
           userAPIKey: request.apiKey,
           responseType: "base64",
