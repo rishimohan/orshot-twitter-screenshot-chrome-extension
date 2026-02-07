@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
-  "name": "Orshot - Beautiful X/Twitter Screenshots",
-  "version": "1.0.0",
-  "description": "Generate Beautiful X/Twitter screenshots with one click",
+  "name": "Orshot - Beautiful Twitter Screenshots",
+  "version": "2.0.0",
+  "description": "Generate Beautiful Twitter screenshots in Chrome with just one click",
   "permissions": ["activeTab", "storage"],
   "host_permissions": [
     "https://twitter.com/*",

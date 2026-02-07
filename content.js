@@ -26,7 +26,7 @@ class OrshotTweetCapture {
     // Wait for page to load and then start observing
     if (document.readyState === "loading") {
       document.addEventListener("DOMContentLoaded", () =>
-        this.startObserving()
+        this.startObserving(),
       );
     } else {
       this.startObserving();
@@ -64,7 +64,7 @@ class OrshotTweetCapture {
   addCaptureButtons() {
     // Find all tweet articles that don't already have a capture button
     const tweets = document.querySelectorAll(
-      'article[data-testid="tweet"]:not([data-orshot-processed])'
+      'article[data-testid="tweet"]:not([data-orshot-processed])',
     );
 
     tweets.forEach((tweet) => {
@@ -101,19 +101,79 @@ class OrshotTweetCapture {
       this.captureTweet(tweetElement);
     });
 
+    // Find a reference button (Share or Reply) to borrow styles from
+    const shareButton = actionBar.querySelector(
+      '[data-testid="share"], [aria-label="Share"]',
+    );
+    const replyButton = actionBar.querySelector('[data-testid="reply"]');
+    const referenceBtn = shareButton || replyButton;
+
+    if (referenceBtn) {
+      const refStyle = window.getComputedStyle(referenceBtn);
+
+      // 1. Fix Layout Shift: Match dimensions exactly
+      if (refStyle.height && refStyle.height !== "auto") {
+        captureButton.style.height = refStyle.height;
+        captureButton.style.minHeight = refStyle.minHeight;
+        // Make sure it doesn't overflow or stretch
+        captureButton.style.maxHeight = refStyle.maxHeight;
+      }
+
+      // Match margins to align baseline
+      captureButton.style.marginTop = refStyle.marginTop;
+      captureButton.style.marginBottom = refStyle.marginBottom;
+
+      // 2. Fix Color: Apply specific gray color based on theme
+      // Twitter icons use specialized colors that don't always map to text color
+      // Light mode icon: #536471, Dark mode icon: #71767B
+
+      // Basic darkness check
+      const isDark =
+        document.body.style.backgroundColor === "rgb(0, 0, 0)" ||
+        document.body.style.backgroundColor === "rgb(21, 32, 43)" ||
+        window.getComputedStyle(document.body).backgroundColor !==
+          "rgb(255, 255, 255)";
+
+      if (isDark) {
+        captureButton.style.color = "#71767B";
+      } else {
+        captureButton.style.color = "#536471";
+      }
+    }
+
     // Insert the button into the action bar
+    // We append it to the end for the timeline view
     actionBar.appendChild(captureButton);
   }
 
   addCaptureButtonToIndividualTweet(tweetElement) {
-    // Look for the views text container
-    const viewsContainer = tweetElement.querySelector(
-      '[href$="analytics"]:not([data-orshot-processed])'
+    // Try to find the action bar by looking for the Like or Reply button container
+    // This helps avoid matching other groups (like media containers) that might appear before the action bar
+    let actionBar = null;
+    const likeButton = tweetElement.querySelector(
+      '[data-testid="like"], [data-testid="unlike"]',
     );
-    if (!viewsContainer) return;
+    const replyButton = tweetElement.querySelector('[data-testid="reply"]');
 
-    // Create a smaller capture button for individual tweet pages
-    const captureButton = this.createCaptureButton(true);
+    const actionButton = likeButton || replyButton;
+
+    if (actionButton) {
+      // The action bar is usually the closest group container
+      actionBar = actionButton.closest('[role="group"]');
+    }
+
+    // Fallback if we couldn't find via buttons
+    if (!actionBar) {
+      actionBar = tweetElement.querySelector('[role="group"]');
+    }
+
+    if (!actionBar) return;
+
+    // Check if button already exists here
+    if (actionBar.querySelector(".orshot-capture-btn")) return;
+
+    // Create standard capture button (not compact) to match other icons
+    const captureButton = this.createCaptureButton();
 
     // Add click handler
     captureButton.addEventListener("click", (e) => {
@@ -122,12 +182,69 @@ class OrshotTweetCapture {
       this.captureTweet(tweetElement);
     });
 
-    // Insert the button after the views container
-    viewsContainer.parentNode.insertBefore(
-      captureButton,
-      viewsContainer.nextSibling
+    // Find the share button to insert before
+    const shareButton = actionBar.querySelector(
+      '[aria-label="Share"], [aria-label="Share post"], [data-testid="share"]',
     );
-    viewsContainer.setAttribute("data-orshot-processed", "true");
+
+    if (shareButton) {
+      // The share button might be nested deep inside (e.g. inside a div inside the action bar)
+      // We want to insert our button as a direct child of the action bar,
+      // immediately before the element that contains the share button.
+      let targetElement = shareButton;
+
+      // Traverse up until we find the element that is a direct child of actionBar
+      while (targetElement && targetElement.parentElement !== actionBar) {
+        targetElement = targetElement.parentElement;
+      }
+
+      if (targetElement) {
+        try {
+          // Copy styles to match native look and prevent layout shift
+          const targetStyle = window.getComputedStyle(targetElement);
+          const shareBtnStyle = window.getComputedStyle(shareButton);
+
+          // Fix layout shift by matching height and margins of the container
+          // Using minHeight as well ensures we don't collapse if specific height is 'auto'
+          if (targetStyle.height && targetStyle.height !== "auto") {
+            captureButton.style.height = targetStyle.height;
+            captureButton.style.minHeight = targetStyle.minHeight;
+            // Also match width to ensure it's a perfect circle like native icons
+            captureButton.style.width =
+              targetStyle.width !== "auto"
+                ? targetStyle.width
+                : targetStyle.height;
+          }
+
+          captureButton.style.marginBottom = targetStyle.marginBottom;
+          captureButton.style.marginTop = targetStyle.marginTop;
+
+          // Fix color mismatch by explicitly checking theme
+          // Light mode matches #536471, Dark mode matches #71767B
+          const isDark =
+            document.body.style.backgroundColor === "rgb(0, 0, 0)" ||
+            document.body.style.backgroundColor === "rgb(21, 32, 43)" ||
+            window.getComputedStyle(document.body).backgroundColor !==
+              "rgb(255, 255, 255)";
+
+          if (isDark) {
+            captureButton.style.color = "#71767B";
+          } else {
+            captureButton.style.color = "#536471";
+          }
+
+          actionBar.insertBefore(captureButton, targetElement);
+        } catch (e) {
+          console.error("Orshot: Failed to insert button", e);
+          actionBar.appendChild(captureButton);
+        }
+      } else {
+        actionBar.appendChild(captureButton);
+      }
+    } else {
+      // Fallback: append to the end of the action bar
+      actionBar.appendChild(captureButton);
+    }
   }
 
   createCaptureButton(isCompact = false) {
@@ -142,8 +259,8 @@ class OrshotTweetCapture {
           <svg xmlns="http://www.w3.org/2000/svg" width="20px" height="20px" viewBox="0 0 24 24" fill="none">
           <g clip-path="url(#clip0_15_137)">
             <rect width="24" height="24" fill="transparent"/>
-            <path d="M3 8C3 7.44772 3.44772 7 4 7H8.5L9.5 4H14.5L15.5 7H20C20.5523 7 21 7.44772 21 8V19C21 19.5523 20.5523 20 20 20H4C3.44772 20 3 19.5523 3 19V8Z" stroke="#536471" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
-            <circle cx="12" cy="13" r="3" stroke="#536471" stroke-width="1.7" stroke-linejoin="round"/>
+            <path d="M3 8C3 7.44772 3.44772 7 4 7H8.5L9.5 4H14.5L15.5 7H20C20.5523 7 21 7.44772 21 8V19C21 19.5523 20.5523 20 20 20H4C3.44772 20 3 19.5523 3 19V8Z" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
+            <circle cx="12" cy="13" r="3" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/>
             </g>
             <defs>
             <clipPath id="clip0_15_137">
@@ -159,8 +276,8 @@ class OrshotTweetCapture {
           <svg xmlns="http://www.w3.org/2000/svg" width="20px" height="20px" viewBox="0 0 24 24" fill="none">
           <g clip-path="url(#clip0_15_137)">
             <rect width="24" height="24" fill="transparent"/>
-            <path d="M3 8C3 7.44772 3.44772 7 4 7H8.5L9.5 4H14.5L15.5 7H20C20.5523 7 21 7.44772 21 8V19C21 19.5523 20.5523 20 20 20H4C3.44772 20 3 19.5523 3 19V8Z" stroke="#536471" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
-            <circle cx="12" cy="13" r="3" stroke="#536471" stroke-width="1.7" stroke-linejoin="round"/>
+            <path d="M3 8C3 7.44772 3.44772 7 4 7H8.5L9.5 4H14.5L15.5 7H20C20.5523 7 21 7.44772 21 8V19C21 19.5523 20.5523 20 20 20H4C3.44772 20 3 19.5523 3 19V8Z" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
+            <circle cx="12" cy="13" r="3" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/>
             </g>
             <defs>
             <clipPath id="clip0_15_137">
@@ -216,7 +333,7 @@ class OrshotTweetCapture {
           error.message || "Failed to generate screenshot"
         } - Get unlimited access`,
         "error",
-        "https://orshot.com/signup"
+        "https://orshot.com/signup",
       );
     } finally {
       // Restore button
@@ -309,10 +426,10 @@ class OrshotTweetCapture {
             resolve(response.data);
           } else {
             reject(
-              new Error(response.error || "Failed to generate screenshot")
+              new Error(response.error || "Failed to generate screenshot"),
             );
           }
-        }
+        },
       );
     });
   }
@@ -327,7 +444,7 @@ class OrshotTweetCapture {
           <div style="display: flex; align-items: center; gap: 10px;">
             <a href="https://orshot.com" target="_blank">
               <img src="${chrome.runtime.getURL(
-                "icons/icon-48.png"
+                "icons/icon-48.png",
               )}" style="width:42px; height:42px; border-radius: 12px;" />
             </a>
             <div style="display: flex; flex-direction: column; gap: 4px;">
@@ -431,7 +548,7 @@ class OrshotTweetCapture {
           notification.remove();
         }
       },
-      link ? 5000 : 3000
+      link ? 5000 : 3000,
     );
   }
 }
